@@ -10,6 +10,7 @@ class EmptyNode:
         return None
 
 class ParseNode:
+    #lst should really be "data", as its the data pointer in the linked list, but I like lst, since most of the time its a list
     __slots__ = ('lst', "next")
     def __init__(self, lst):
         self.lst = lst
@@ -30,20 +31,27 @@ class ArithmeticNode:
     __slots__ = ("op", "lvalue", "rvalue")
     def __init__(self, lst):
         self.op = lst[0]
-        self.lvalue = lst[1]
-        self.rvalue = lst[2]
+        temp = []
+        temp += lst[1]
+        temp += lst[2]
+        for i in [0, 1]:
+            if isinstance(ParseNode, temp[i]):
+                temp[i].lst = nodeDecider(temp[i])
+                temp[i] = temp[i].lst.eval
+
+        self.lvalue = temp[0]
+        self.rvalue = temp[1]
+
     def eval(self):
         if self.op == "+":
-            return l-value.eval() + " + " + r-value.eval()
-
+            return lvalue + " + " + rvalue
         elif self.op == "*":
-            return l-value.eval() + " * " + r-value.eval()
-
+            return lvalue + " * " + rvalue
         elif self.op == "/":
-            return l-value.eval() + " / " + r-value.eval()
-
+            return lvalue + " / " + rvalue
         elif self.op == "-":
-            return l-value.eval() + " - " + r-value.eval()
+            return lvalue + " - " + rvalue
+
 
 class LiteralNode:
     __slots__ = ('val')
@@ -168,6 +176,7 @@ def nodeDecider(node):
 
     if op == "+" or  op == "-" or op == "*" or op == "/":
         return ArithmeticNode(node.lst)
+
     
     elif op == "quote":
         return LiteralNode(node.lst)
@@ -194,6 +203,9 @@ def nodeDecider(node):
 
     elif op in functionTable:
         return FunctionAppNode(node.lst)
+
+    else:
+        return LiteralValue(node.lst)
 
 def listEater(node):
     while not isinstance(node, EmptyNode):
