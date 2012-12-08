@@ -4,10 +4,16 @@ derivativeDefNeeded = False
 integralDefNeeded = False
 functionTable = {}
 
+class EmptyNode:
+    __slots__ = ()
+    def __str__(self):
+        return None
+
 class ParseNode:
     __slots__ = ('lst', "next")
     def __init__(self, lst):
         self.lst = lst
+        self.next = EmptyNode()
 
     def __str__(self):
         return str(self.lst)
@@ -27,16 +33,16 @@ class ArithmeticNode:
         self.lvalue = lst[1]
         self.rvalue = lst[2]
     def eval(self):
-        if op == "+":
+        if self.op == "+":
             return l-value.eval() + " + " + r-value.eval()
 
-        elif op == "*":
+        elif self.op == "*":
             return l-value.eval() + " * " + r-value.eval()
 
-        elif op == "/":
+        elif self.op == "/":
             return l-value.eval() + " / " + r-value.eval()
 
-        elif op == "-":
+        elif self.op == "-":
             return l-value.eval() + " - " + r-value.eval()
 
 class LiteralNode:
@@ -132,6 +138,7 @@ def parenParser(parseList, l_brack="(", r_brack=")"):
     #assumes the 0-th index is an open parenthesis, skips it to allow recursion
     #parsenode is my shitty intermediate form. It makes textsub easier.
     nestedNode = EmptyNode()
+    returnList = list()
     i = 1
 
     while i < len(parseList):
@@ -189,20 +196,20 @@ def nodeDecider(node):
         return FunctionAppNode(node.lst)
 
 def listEater(node):
-    while not isinstance(EmptyNode(), node):
-        node.lst = nodeDecider(node.lst)
+    while not isinstance(node, EmptyNode):
+        node.lst = nodeDecider(node)
         node = node.next
 
 def listEvaller(node):
     returnStr = ""
-    while not isinstance(EmptyNode(), node):
-        returnStr += node.eval() + "\n"
+    while not isinstance(node, EmptyNode):
+        returnStr += node.lst.eval() + "\n"
         node = node.next
     return returnStr
 
 
 def mainLoop(inputString):
-    node = parseParens(inputString)
+    node = parenParser(inputString)
     listEater(node)
     returnStr = listEvaller(node)
 
@@ -213,4 +220,6 @@ def mainLoop(inputString):
         returnStr += defs.integralDefinition
     
     print(returnStr)
-    
+
+if __name__ == "__main__":
+    mainLoop("(+ 1 2)")
