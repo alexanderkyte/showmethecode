@@ -89,7 +89,7 @@ class IntegralNode:
     
     def eval(self):
         returnStr = ""
-        returnStr += "derivativeWrapper( " + self.function.name + " , " + self.lower  + self.upper + " )\n"
+        returnStr += "integralWrapper( " + self.function.name + " , " + self.lower + " , " + self.upper + " )\n"
         return returnStr
 
 
@@ -193,14 +193,24 @@ def listEater(node):
         node.lst = nodeDecider(node.lst)
         node = node.next
 
+def listEvaller(node):
+    returnStr = ""
+    while not isinstance(EmptyNode(), node):
+        returnStr += node.eval() + "\n"
+        node = node.next
+    return returnStr
 
-"""
-def main():
-    returnStr = """ """
+
+def mainLoop(inputString):
+    node = parseParens(inputString)
+    listEater(node)
+    returnStr = listEvaller(node)
+
     if derivativeDefNeeded == True:
         returnStr += defs.derivDefintion
     
     if integralDefNeeded == True:
         returnStr += defs.integralDefinition
-"""
-
+    
+    print(returnStr)
+    
