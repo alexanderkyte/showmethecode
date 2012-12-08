@@ -2,25 +2,30 @@
 
 derivativeDefNeeded = False
 integralDefNeeded = False
-functionTable == {}
+functionTable = {}
 
 class ParseNode:
-    __slots__ = ('lst')
+    __slots__ = ('lst', "next")
     def __init__(self, lst):
         self.lst = lst
 
     def __str__(self):
         return str(self.lst)
 
-class ExpressioNode:
+class ExpressionNode:
+    def __init__(self, expresson):
+        self.expression = expression
+    
+    def eval(self):
+        return expression
 
 
 class ArithmeticNode:
-    __slots__ = ("op", "l-value", "r-value")
+    __slots__ = ("op", "lvalue", "rvalue")
     def __init__(self, lst):
         self.op = lst[0]
-        self.l-value = lst[1]
-        self.r-value = lst[2]
+        self.lvalue = lst[1]
+        self.rvalue = lst[2]
     def eval(self):
         if op == "+":
             return l-value.eval() + " + " + r-value.eval()
@@ -36,7 +41,7 @@ class ArithmeticNode:
 
 class LiteralNode:
     __slots__ = ('val')
-    def __init__(self, lst)
+    def __init__(self, lst):
         self.val = lst[1]
 
     def __str__(self):
@@ -60,7 +65,7 @@ class DerivativeNode:
     __slots__ = ("function", "point", "returnStr")
     def __init__(self, lst):
         self.function = lst[0]
-        if not isisntance(self.function, FunctionNode)
+        if not isisntance(self.function, FunctionNode):
             raise TypeError("Can only take a function as arg 1.")
         self.args = ""
         for i in lst[1:]:
@@ -79,7 +84,7 @@ class IntegralNode:
         self.function = lst[0]
         self.lower = lst[1]
         self.upper = lst[2]
-        if not isisntance(self.function, FunctionNode)
+        if not isisntance(self.function, FunctionNode):
             raise TypeError("Can only take a function as arg 1.")
     
     def eval(self):
@@ -118,26 +123,37 @@ def parseFunction(lst):
     # of the form (function f (x) (expression)
     name = lst[1]
     args = str(lst[2])[1]
-    expression = ExpressionNode(lst[3])
+    expression = ExpressionNode(args, lst[3])
     functionTable[name] == expression
 
     return FunctionDefNode(name, args, expression)
 
 def parenParser(parseList, l_brack="(", r_brack=")"):
     #assumes the 0-th index is an open parenthesis, skips it to allow recursion
-    returnList = list()
+    #parsenode is my shitty intermediate form. It makes textsub easier.
+    nestedNode = EmptyNode()
     i = 1
 
     while i < len(parseList):
         if parseList[i] == l_brack:
-            node = parenParser(parseList[i:])
-            returnList.append(node)
-            i += len(node.lst) + 2 #skips current open bracket, the length of the list, and the ending bracket.
+            tempNode = parenParser(parseList[i:])
+            tempNode.next = nestedNode
+            nestedNode = tempNode
+            i += len(nestedNode.lst) + 2 #skips current open bracket, the length of the list, and the ending bracket.
         elif parseList[i] == r_brack:
             return ParseNode(returnList[0:i])
         else:
             returnList += parseList[i]
             i += 1
+
+class VarAssignNode:
+    __slots__ = ("var")
+    def __init__(self, var, value):
+        self.var = var
+        self.value = value
+
+    def eval(self):
+        return self.var + " = " + self.value
 
 
 def nodeDecider(node):
@@ -158,10 +174,10 @@ def nodeDecider(node):
     
     elif op == "expression":
         return ExpressionNode(node.lst)
-
+    
     elif op == "=":
-        return VarAssign
-
+        return VarAssignNode(node.lst)
+    
     elif op == "function":
         return parseFunction(node.lst)
 
@@ -170,8 +186,14 @@ def nodeDecider(node):
         return IntegralNode(node.lst)
 
     elif op in functionTable:
-        return FunctionAppNode(node.lst):
-        
+        return FunctionAppNode(node.lst)
+
+def listEater(node):
+    while not isinstance(EmptyNode(), node):
+        node.lst = nodeDecider(node.lst)
+        node = node.next
+
+
 """
 def main():
     returnStr = """ """
