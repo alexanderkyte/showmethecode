@@ -1,18 +1,24 @@
 class Parser:
-    def __init_(self):
-        symtbl = {}
-    def scanner(self):
+    def __init_(self, expression):
+        self.symTbl = {}
+        self.expression = expression
+        
+    def tokenizer(self):
+       pass
+
     def peek(self):
-        pass
+        return self.expression[self.index:self.index+1]
         #integrate whitespace skipping
-    def parseExpression(self)
+    
+    def parseExpression(self):
+
     def parseFunctionDefiniton(self):
         # demand that function definitions be of the form f (x) = expression
         key = line[0] # after splitting. work in progress.
         i = 0
         while line[i] != "=":
             i += 1
-        expression = line[i+2:] #+2 because we expect one whitespace after the = sign.
+        expression = line[i+2:] 
         result = str(key) + " = lambda" 
         variables = parseParenthesis:
         varstr = ""
@@ -22,7 +28,10 @@ class Parser:
             else:
                 varstr += " "
                 varstr += str(var)
-        varstr += ":"
-        varstr += expression
-        print(varstr)
+        varstr += ":" + expression
+        self.symTbl[key] = varstr
+        return varstr
+
+    def parseParens():
+
 
