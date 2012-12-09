@@ -19,14 +19,6 @@ class ParseNode:
     def __str__(self):
         return str(self.lst)
 
-class ExpressionNode:
-    def __init__(self, expresson):
-        self.expression = expression
-    
-    def eval(self):
-        return expression
-
-
 class ArithmeticNode:
     __slots__ = ("op", "lvalue", "rvalue")
     def __init__(self, lst):
@@ -34,8 +26,9 @@ class ArithmeticNode:
         temp = []
         temp += lst[1]
         temp += lst[2]
+        
         for i in [0, 1]:
-            if isinstance(ParseNode, temp[i]):
+            if isinstance(temp[i], ParseNode):
                 temp[i].lst = nodeDecider(temp[i])
                 temp[i] = temp[i].lst.eval
 
@@ -44,19 +37,19 @@ class ArithmeticNode:
 
     def eval(self):
         if self.op == "+":
-            return lvalue + " + " + rvalue
+            return "(" + self.lvalue + " + " + self.rvalue + ")"
         elif self.op == "*":
-            return lvalue + " * " + rvalue
+            return "(" + self.lvalue + " * " + self.rvalue + ")"
         elif self.op == "/":
-            return lvalue + " / " + rvalue
+            return "(" + self.lvalue + " / " + self.rvalue + ")"
         elif self.op == "-":
-            return lvalue + " - " + rvalue
+            return "(" + self.lvalue + " - " + self.rvalue + ")"
 
 
 class LiteralNode:
     __slots__ = ('val')
     def __init__(self, lst):
-        self.val = lst[1]
+        self.val = lst
 
     def __str__(self):
         return str(self.val)
@@ -75,22 +68,23 @@ class SummationNode:
         self.returnStr += "\t sum += " + lst[3].eval() + "\n"
         return returnStr
 
+    def __str__(self):
+        return self.eval
+
 class DerivativeNode:
     __slots__ = ("function", "point", "returnStr")
     def __init__(self, lst):
-        self.function = lst[0]
-        if not isisntance(self.function, FunctionNode):
-            raise TypeError("Can only take a function as arg 1.")
-        self.args = ""
-        for i in lst[1:]:
-            if args == "":
-                args += i
-            else:
-                args += ", " + i
-    def eval(self):
-        returnStr = ""
-        returnStr += "derivativeWrapper( " + self.function.name + " , " + self.args  + " )\n"
+        self.function = lst[1]
+        if self.function not in functionTable:
+            raise ValueError("Need to define function first.")
+        self.point = lst[2]
 
+    def eval(self):
+        returnStr = "derivativeWrapper(" + self.function + " , " + self.point  + ")\n"
+        return returnStr
+
+    def __str__(self):
+        return self.eval
 
 class IntegralNode:
     __slots__ = ("function", "lower", "upper")
@@ -98,13 +92,16 @@ class IntegralNode:
         self.function = lst[0]
         self.lower = lst[1]
         self.upper = lst[2]
-        if not isisntance(self.function, FunctionNode):
+        if not isinstance(self.function, FunctionNode):
             raise TypeError("Can only take a function as arg 1.")
     
     def eval(self):
         returnStr = ""
         returnStr += "integralWrapper( " + self.function.name + " , " + self.lower + " , " + self.upper + " )\n"
         return returnStr
+
+    def __str__(self):
+        return self.eval
 
 
 class FunctionAppNode:
@@ -123,6 +120,10 @@ class FunctionAppNode:
     def eval(self):
         return self.fullString
 
+    def __str__(self):
+        return self.eval
+
+
 class FunctionDefNode:
     __slots__ = ("name", "args", "expression")
     def __init__(self, name, args, expression):
@@ -131,35 +132,35 @@ class FunctionDefNode:
         self.expression = expression
 
     def eval(self):
-        return "def " + self.name + "( " + self.args + "):\n" + "\nreturn " + self.expression
+        return "def " + self.name + "(" + self.args + "):\n" + "\treturn " + self.expression
+
+    def __str__(self):
+        return self.eval
+
 
 def parseFunction(lst):
-    # of the form (function f (x) (expression)
+    # of the form (function f {x} (expression)
+    print(lst)
     name = lst[1]
-    args = str(lst[2])[1]
-    expression = ExpressionNode(args, lst[3])
-    functionTable[name] == expression
-
+    args = str(lst[2])
+    args = args[1:]
+    args = args[:-1]
+    expression = lst[3]
+    functionTable[name] = expression
     return FunctionDefNode(name, args, expression)
 
 def parenParser(parseList, l_brack="(", r_brack=")"):
-    #assumes the 0-th index is an open parenthesis, skips it to allow recursion
-    #parsenode is my shitty intermediate form. It makes textsub easier.
-    nestedNode = EmptyNode()
-    returnList = list()
-    i = 1
-
+    i = 0
+    parseList = parseList[1:] # strips opening parenthesis
     while i < len(parseList):
-        if parseList[i] == l_brack:
-            tempNode = parenParser(parseList[i:])
-            tempNode.next = nestedNode
-            nestedNode = tempNode
-            i += len(nestedNode.lst) + 2 #skips current open bracket, the length of the list, and the ending bracket.
-        elif parseList[i] == r_brack:
-            return ParseNode(returnList[0:i])
+        if parseList[i] == r_brack:
+            rootNode = ParseNode(parseList[0:i])
+            if i < (len(parseList)-1):
+                rootNode.next = parenParser(parseList[i+1:])
+            return rootNode
         else:
-            returnList += parseList[i]
             i += 1
+
 
 class VarAssignNode:
     __slots__ = ("var")
@@ -170,6 +171,8 @@ class VarAssignNode:
     def eval(self):
         return self.var + " = " + self.value
 
+    def __str__(self):
+        return self.eval
 
 def nodeDecider(node):
     op = node.lst[0]
@@ -177,9 +180,8 @@ def nodeDecider(node):
     if op == "+" or  op == "-" or op == "*" or op == "/":
         return ArithmeticNode(node.lst)
 
-    
     elif op == "quote":
-        return LiteralNode(node.lst)
+        return LiteralNode(node.lst[1:])
 
     elif op == "summation":
         return SummationNode(node.lst)
@@ -189,7 +191,7 @@ def nodeDecider(node):
         return DerivativeNode(node.lst)
     
     elif op == "expression":
-        return ExpressionNode(node.lst)
+        return ExpressionNode(node.lst[1:])
     
     elif op == "=":
         return VarAssignNode(node.lst)
@@ -205,7 +207,7 @@ def nodeDecider(node):
         return FunctionAppNode(node.lst)
 
     else:
-        return LiteralValue(node.lst)
+        return LiteralNode(node.lst)
 
 def listEater(node):
     while not isinstance(node, EmptyNode):
@@ -221,6 +223,7 @@ def listEvaller(node):
 
 
 def mainLoop(inputString):
+    inputString = inputString.split()
     node = parenParser(inputString)
     listEater(node)
     returnStr = listEvaller(node)
@@ -234,4 +237,8 @@ def mainLoop(inputString):
     print(returnStr)
 
 if __name__ == "__main__":
-    mainLoop("(+ 1 2)")
+    mainLoop("( + 1 2 )")
+    mainLoop("( quote 12 )")
+    mainLoop("( 12 )")
+    mainLoop("( function name {x} x+2+3 )")
+    mainLoop("( derivative name 10  )")
