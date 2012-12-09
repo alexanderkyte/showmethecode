@@ -6,7 +6,7 @@ def derivativeWrapper(f, precision=0.0000001):
 """
 
 integralDefinition = """
-def integraliWrapper(f, lower, upper):
+def integralWrapper(f, lower, upper):
     # This is the simpson's approximation. n is the number of subintervals. It can be any even number
     n = 1000000
     h = (upper-lower)/n
@@ -46,7 +46,7 @@ def series(f, start=0):
 
 
 summationDefinition = """
-def summation(f, start, stop):
+def summationWrapper(f, start, stop):
     sum = 0
     for i in range(start-stop):
         sum += f(i)

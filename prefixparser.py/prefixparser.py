@@ -58,14 +58,16 @@ class LiteralNode:
         return str(self.val)
 
 class SummationNode:
-    __slots__ = ("returnStr", "lst")
-    def __init__(self, inputlst):
-        lst = lst
-    
+    __slots__ = ("lower", "upper", "function")
+    def __init__(self, lst):
+        self.function = lst[1]
+        self.lower = lst[2]
+        self.upper = lst[3]
+        if self.function not in functionTable:
+            raise ValueError("Need to define function first.")
+
     def eval(self):
-        self.returnStr = "sum = 0 \n"
-        self.returnStr += "\tfor x in range(" + str(lst[1]) + " , " + str(lst[2]) + ":\n"
-        self.returnStr += "\t sum += " + lst[3].eval() + "\n"
+        returnStr = "summationWrapper(" + self.function + ", " + self.lower + ", " + self.upper + ")\n" + defs.summationDefinition
         return returnStr
 
     def __str__(self):
@@ -92,11 +94,11 @@ class IntegralNode:
         self.function = lst[0]
         self.lower = lst[1]
         self.upper = lst[2]
-        if not isinstance(self.function, FunctionNode):
+        if self.function not in functionTable:
             raise TypeError("Can only take a function as arg 1.")
     
     def eval(self):
-        returnStr = "integralWrapper( " + self.function.name + " , " + self.lower + " , " + self.upper + " )\n" + defs.integralDefinition
+        returnStr = "integralWrapper(" + self.function + ", " + self.lower + ", " + self.upper + " )\n" + defs.integralDefinition
         return returnStr
 
     def __str__(self):
@@ -161,10 +163,10 @@ def parenParser(parseList, l_brack="(", r_brack=")"):
 
 
 class VarAssignNode:
-    __slots__ = ("var")
-    def __init__(self, var, value):
-        self.var = var
-        self.value = value
+    __slots__ = ("var", "value")
+    def __init__(self, lst):
+        self.var = lst[1]
+        self.value = lst[2]
 
     def eval(self):
         return self.var + " = " + self.value
@@ -185,11 +187,7 @@ def nodeDecider(node):
         return SummationNode(node.lst)
 
     elif op == "derivative":
-        derivativeDefNeeded = True
         return DerivativeNode(node.lst)
-    
-    elif op == "expression":
-        return ExpressionNode(node.lst[1:])
     
     elif op == "=":
         return VarAssignNode(node.lst)
@@ -198,8 +196,7 @@ def nodeDecider(node):
         return parseFunction(node.lst)
 
     elif op == "integral":
-        derivativeDefNeeded = True
-        return IntegralNode(node.lst)
+        return IntegralNode(node.lst[1:])
 
     elif op in functionTable:
         return FunctionAppNode(node.lst)
@@ -225,7 +222,6 @@ def mainLoop(inputString):
     node = parenParser(inputString)
     listEater(node)
     returnStr = listEvaller(node)
-
     print(returnStr)
 
 if __name__ == "__main__":
@@ -234,3 +230,8 @@ if __name__ == "__main__":
     mainLoop("( 12 )")
     mainLoop("( function name {x} x+2+3 )")
     mainLoop("( derivative name 10  )")
+    mainLoop("( integral name 1 100 )")
+    mainLoop("( summation name 1 100 )")
+    print("All together now.")
+    mainLoop("( + 1 2 ) ( quote 12 ) ( 12 ) ( function name {x} x+2+3 ) ( derivative name 10  ) ( integral name 1 100 ) ( summation name 1 100 ) ( = x 3 ) ")
+
