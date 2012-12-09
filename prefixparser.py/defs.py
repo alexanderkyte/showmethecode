@@ -1,6 +1,5 @@
 derivDefinition = """
 def derivativeWrapper(f, precision=0.0000001):
-# the derivative
     def derivative(x):
         return (f(x+precision) - f(x))/(precision)
     return derivative

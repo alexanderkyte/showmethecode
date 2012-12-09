@@ -1,4 +1,4 @@
-# import defs
+import defs
 
 derivativeDefNeeded = False
 integralDefNeeded = False
@@ -49,7 +49,7 @@ class ArithmeticNode:
 class LiteralNode:
     __slots__ = ('val')
     def __init__(self, lst):
-        self.val = lst
+        self.val = lst[0]
 
     def __str__(self):
         return str(self.val)
@@ -80,8 +80,8 @@ class DerivativeNode:
         self.point = lst[2]
 
     def eval(self):
-        returnStr = "derivativeWrapper(" + self.function + " , " + self.point  + ")\n"
-        return returnStr
+        returnStr = "derivativeWrapper(" + self.function + ", " + self.point  + ")\n"
+        return returnStr + defs.derivDefinition
 
     def __str__(self):
         return self.eval
@@ -96,8 +96,7 @@ class IntegralNode:
             raise TypeError("Can only take a function as arg 1.")
     
     def eval(self):
-        returnStr = ""
-        returnStr += "integralWrapper( " + self.function.name + " , " + self.lower + " , " + self.upper + " )\n"
+        returnStr = "integralWrapper( " + self.function.name + " , " + self.lower + " , " + self.upper + " )\n" + defs.integralDefinition
         return returnStr
 
     def __str__(self):
@@ -140,7 +139,6 @@ class FunctionDefNode:
 
 def parseFunction(lst):
     # of the form (function f {x} (expression)
-    print(lst)
     name = lst[1]
     args = str(lst[2])
     args = args[1:]
@@ -228,12 +226,6 @@ def mainLoop(inputString):
     listEater(node)
     returnStr = listEvaller(node)
 
-    if derivativeDefNeeded == True:
-        returnStr += defs.derivDefintion
-    
-    if integralDefNeeded == True:
-        returnStr += defs.integralDefinition
-    
     print(returnStr)
 
 if __name__ == "__main__":
