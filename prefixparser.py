@@ -225,13 +225,5 @@ def mainLoop(inputString):
     print(returnStr)
 
 if __name__ == "__main__":
-    mainLoop("( + 1 2 )")
-    mainLoop("( quote 12 )")
-    mainLoop("( 12 )")
-    mainLoop("( function name {x} x+2+3 )")
-    mainLoop("( derivative name 10  )")
-    mainLoop("( integral name 1 100 )")
-    mainLoop("( summation name 1 100 )")
-    print("All together now.")
     mainLoop("( + 1 2 ) ( quote 12 ) ( 12 ) ( function name {x} x+2+3 ) ( derivative name 10  ) ( integral name 1 100 ) ( summation name 1 100 ) ( = x 3 ) ")
 
